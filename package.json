@@ -1,0 +1,20 @@
+{
+  "name": "competition-control-rinha-q1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/http/server.ts"
+  },
+  "author": "Adriano Junior",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "fastify": "^4.27.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "tsx": "^4.11.0",
+    "typescript": "^5.4.5"
+  }
+}
