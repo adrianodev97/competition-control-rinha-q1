@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id          Int           @id @map("_id")
+  limit       Int
+  balance     Int
+  transaction Transaction[]
+
+  @@map("clients")
+}
+
+enum AllowedValues {
+  c
+  d
+}
+
+model Transaction {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  client_id   Int
+  value       Int
+  type        AllowedValues
+  description String
+  created_at  DateTime      @default(now())
+  Client      Client        @relation(fields: [client_id], references: [id])
+
+  @@map("transactions")
+}
