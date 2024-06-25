@@ -11,12 +11,22 @@ export const getClientById = async (clientId: number) => {
   });
 }
 
-export const createTransaction = async (data: Omit<ICreateTransaction, 'id' | 'created_at'>) => {
+export const updateClientBalance = async (clientId: number, newBalance: number) => {
+  return prisma.client.update({
+    where: { id: clientId },
+    data: { balance: newBalance },
+  });
+}
+
+export const createTransactionDB = async (data: Omit<ICreateTransaction, 'id' | 'created_at'>) => {
   return prisma.transaction.create({ data });
 };
 
 export const gestTransactionsByClientId = async (clientId: number) => {
   return prisma.transaction.findMany({
-    where: { client_id: clientId},
+    where: { client_id: clientId },
+    orderBy: { created_at: 'desc' },
+    take: 10,
   });
 }
+ 
