@@ -16,14 +16,20 @@ ENV NODE_ENV production
 
 WORKDIR /usr/src/app
 
-# Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.yarn to speed up subsequent builds.
-# Leverage a bind mounts to package.json and yarn.lock to avoid having to copy them into
-# into this layer.
-RUN --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=yarn.lock,target=yarn.lock \
-    --mount=type=cache,target=/root/.yarn \
-    yarn install --production --frozen-lockfile
+# Copy package.json and yarn.lock
+COPY package.json yarn.lock ./
+
+# Install dependencies
+RUN yarn install --production --frozen-lockfile
+
+# Alternatively, install `tsx` directly
+RUN yarn global add tsx
+
+# Copy the Prisma schema file before generating the Prisma client
+COPY prisma/ prisma/
+
+# Generate Prisma client
+RUN yarn prisma generate
 
 # Run the application as a non-root user.
 USER node
@@ -35,4 +41,4 @@ COPY . .
 EXPOSE 3333
 
 # Run the application.
-CMD yarn serve
+CMD ["yarn", "serve"]
