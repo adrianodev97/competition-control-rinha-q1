@@ -1,5 +1,7 @@
 import { FastifyInstance } from "fastify";
-import { createClient, createTransaction, getStatement } from '../controllers/clients.js';
+import { getStatement } from "src/controllers/statement";
+import { createTransaction } from "src/controllers/transactions";
+import { createClient } from '../controllers/clients.js';
 
 export const clientsRoutes = async (router: FastifyInstance) => {
   router.post('/create', createClient)
