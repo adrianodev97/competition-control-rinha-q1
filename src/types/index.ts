@@ -12,3 +12,10 @@ export interface ICreateTransaction {
   description: string,
   created_at: Date,
 }
+
+export interface ITransactionFormatted {
+  value: number;
+  type: string;
+  description: string;
+  created_at: Date;
+}

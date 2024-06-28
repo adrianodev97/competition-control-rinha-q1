@@ -1,28 +1,24 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { createClientData } from "src/db/clients";
-import { IClient } from "src/types/index";
+import { clientBodySchema } from "src/schemas/clientSchema";
 
 export const createClient = async (req: FastifyRequest, res: FastifyReply) => {
   try {
-    const { id } = req.body as IClient;
-    let { limit, balance } = req.body as IClient;
-
-    if(!limit) {
-      limit = 0
+    const parsedBody = clientBodySchema.safeParse(req.body)
+    if (!parsedBody.success) {
+      return res.status(422).send({
+        message: "Validation error",
+        errors: parsedBody.error.format(),
+      })
     }
 
-    if(!balance) {
-      balance = 0
-    }
+    const { id, limit = 0, balance = 0 } = parsedBody.data
 
-    if (!id) {
-      return res.status(400).send("Id is required")
-    }
+    const newClient = await createClientData({ id, limit, balance })
 
-    createClientData({ id, limit, balance })
-    return res.status(200).send({ message: "Client created" });
+    return res.status(201).send({ message: "Client created", client: newClient })
   } catch (error) {
-    console.error(error);
-    return res.status(500).send({ message: "Internal server error" });
+   console.error("Error creating client:", error)
+    return res.status(500).send({ message: "Internal server error" })
   }
 }

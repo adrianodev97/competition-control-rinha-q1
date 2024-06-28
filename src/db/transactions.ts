@@ -5,7 +5,7 @@ export const createTransactionDB = async (data: Omit<ICreateTransaction, 'id' | 
   return prisma.transaction.create({ data });
 };
 
-export const gestTransactionsByClientId = async (clientId: number) => {
+export const getTransactionsByClientId = async (clientId: number) => {
   return prisma.transaction.findMany({
     where: { client_id: clientId },
     orderBy: { created_at: 'desc' },

@@ -1,33 +1,41 @@
+import { Transaction } from "@prisma/client";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { getClientById } from "src/db/clients";
-import { gestTransactionsByClientId } from "src/db/transactions";
+import { getTransactionsByClientId } from "src/db/transactions";
+import { IClient } from "src/types/index";
 
 export const getStatement = async (req: FastifyRequest, res: FastifyReply) => {
-  const { id } = await req.params as { id: number };
+  try {
+    const { id } = req.params as { id: number };
 
-  const clientResponse = await getClientById(Number(id))
-    
-  if(!clientResponse) {
-    return res.status(404).send({ message: "Client not found" });
+    const clientResponse = await getClientById(Number(id));
+    if (!clientResponse) {
+      return res.status(404).send({ message: "Client not found" });
+    }
+
+    const transactions = await getTransactionsByClientId(Number(id));
+
+    const statement = formatStatement(clientResponse, transactions);
+
+    return res.status(200).send(statement);
+  } catch (error) {
+    console.error("Error fetching statement:", error);
+    return res.status(500).send({ message: "Internal server error" });
   }
+};
 
-  const { limit, balance } = clientResponse
-
-  const transactions = await gestTransactionsByClientId(Number(id))
-
-  const statement = {
+const formatStatement = (client: IClient, transactions: Transaction[]) => {
+  return {
     balance: {
-      total: balance,
-      statement_date: new Date(),
-      limite: limit
+      total: client.balance,
+      statement_date: new Date().toISOString(),
+      limit: client.limit,
     },
-    ultimas_transacoes: transactions.map(transaction => ({
-      value: transaction.value,
-      type: transaction.type,
-      description: transaction.description,
-      created_at: transaction.created_at
-    }))
-  }
-
-  return res.status(200).send(statement);
+    last_transactions: transactions.map(({ value, type, description, created_at }) => ({
+      value,
+      type,
+      description,
+      created_at: created_at.toISOString(),
+    })),
+  };
 }
