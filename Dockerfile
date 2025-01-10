@@ -29,6 +29,7 @@ USER node
 COPY . .
 
 # Configurar permissões para o usuário node
+USER root
 RUN chown -R node:node /usr/src/app
 
 # Expor a porta do servidor

@@ -1,22 +1,54 @@
-### Building and running your application
 
-When you're ready, start your application by running:
-`docker compose up --build`.
+### README.Docker.md (para rodar com Docker)
+```markdown
+# Competition Control Rinha Q1 - Docker
 
-Your application will be available at http://localhost:3333.
+Este projeto pode ser rodado em containers utilizando Docker. Aqui está um guia passo a passo para rodar a aplicação usando Docker Compose.
 
-### Deploying your application to the cloud
+## Pré-requisitos
 
-First, build your image, e.g.: `docker build -t myapp .`.
-If your cloud uses a different CPU architecture than your development
-machine (e.g., you are on a Mac M1 and your cloud provider is amd64),
-you'll want to build the image for that platform, e.g.:
-`docker build --platform=linux/amd64 -t myapp .`.
+- Docker
+- Docker Compose
 
-Then, push it to your registry, e.g. `docker push myregistry.com/myapp`.
+## Rodando a aplicação com Docker
 
-Consult Docker's [getting started](https://docs.docker.com/go/get-started-sharing/)
-docs for more detail on building and pushing.
+### 1. Configuração do Docker
 
-### References
-* [Docker's Node.js guide](https://docs.docker.com/language/nodejs/)
+Este projeto já vem com um arquivo docker-compose.yml e um Dockerfile configurados.
+
+Execute os seguintes comandos para construir as imagens e subir os containers:
+
+```bash
+docker-compose up --build
+```
+
+Isso irá:
+
+1. Criar e iniciar os containers para o backend, MongoDB e Nginx.
+2. Mapear a porta 3333 do backend para 3333 localmente.
+3. Mapear a porta 8080 para acessar o Nginx.
+
+O MongoDB será inicializado com uma configuração de replicação para suportar o ambiente de produção.
+
+### 2. Inicializando o Replica Set do MongoDB
+
+Após os containers estarem rodando, precisamos inicializar o Replica Set do MongoDB. Para isso, entre no container do MongoDB e execute o comando:
+
+```bash
+docker exec -it mongo mongosh
+rs.initiate()
+```
+
+Isso irá configurar o MongoDB para usar um Replica Set, que é necessário para garantir a alta disponibilidade e confiabilidade do banco de dados.
+
+### 3. Projeto em funcionamento
+
+Agora, o projeto está em pleno funcionamento e pode ser acessado em http://localhost:3333.
+
+## Parando os containers
+
+Para parar os containers, execute:
+
+```bash
+docker-compose down
+```
