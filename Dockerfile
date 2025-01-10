@@ -1,44 +1,38 @@
 # syntax=docker/dockerfile:1
 
-# Comments are provided throughout this file to help you get started.
-# If you need more help, visit the Dockerfile reference guide at
-# https://docs.docker.com/go/dockerfile-reference/
-
-# Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
-
+# Imagem Node.js Alpine para manter o tamanho leve
 ARG NODE_VERSION=20.11.0
-
 FROM node:${NODE_VERSION}-alpine
 
-# Use production node environment by default.
+# Configuração de ambiente para produção
 ENV NODE_ENV production
 
-
+# Diretório de trabalho dentro do container
 WORKDIR /usr/src/app
 
-# Copy package.json and yarn.lock
-COPY package.json yarn.lock ./
+# Copiar os arquivos de dependências
+COPY package.json bun.lockb ./
 
-# Install dependencies
-RUN yarn install --production --frozen-lockfile
+# Instalar o Bun globalmente e instalar as dependências do projeto
+RUN npm install -g bun && bun install
 
-# Alternatively, install `tsx` directly
-RUN yarn global add tsx
+# Copiar apenas o schema para otimizar cache
+COPY prisma/schema.prisma prisma/
 
-# Copy the Prisma schema file before generating the Prisma client
-COPY prisma/ prisma/
+# Gerar o cliente Prisma
+RUN npx prisma generate
 
-# Generate Prisma client
-RUN yarn prisma generate
-
-# Run the application as a non-root user.
+# Mudar o usuário para node por questões de segurança
 USER node
 
-# Copy the rest of the source files into the image.
+# Copiar o restante dos arquivos da aplicação
 COPY . .
 
-# Expose the port that the application listens on.
+# Configurar permissões para o usuário node
+RUN chown -R node:node /usr/src/app
+
+# Expor a porta do servidor
 EXPOSE 3333
 
-# Run the application.
-CMD ["yarn", "serve"]
+# Comando para rodar a aplicação
+CMD ["bun", "serve"]
